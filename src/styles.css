@@ -7,3 +7,33 @@
     transform: translateY(-5px); /* Lift the image slightly on hover */
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 10px 10px rgba(0, 0, 0, 0.3);
   }
+
+  .bold-label {
+    font-weight: bold;
+  }
+
+  @keyframes trainAnimation {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  .train-text {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .train-text::before {
+    content: '🚅'; /* Train emoji */
+    position: absolute;
+    left: 200px;
+    animation: trainAnimation 5s linear infinite;
+  }
