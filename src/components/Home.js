@@ -31,7 +31,7 @@ const Home = () => {
 
         <div className="col-md-6 d-flex align-items-center justify-content-center">
           <div className="card p-4 shadow-3d">
-            <h2 className="text-center mb-4">Login to <span style={{fontWeight:'bold' }}>Book-rail</span></h2>
+            <h2 className="text-center mb-4">Login to <span style={{fontWeight:'bold',color:'#0836B1' }}>Book-rail</span></h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label htmlFor="username" className="form-label">Username:</label>
