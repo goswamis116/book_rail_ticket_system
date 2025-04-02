@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const ShowTrains = () => {
-  // State for form inputs
+  const { user } = useAuth();
   const [startStation, setStartStation] = useState('');
   const [destinationStation, setDestinationStation] = useState('');
   const [date, setDate] = useState('');
   const [trains, setTrains] = useState([]);
+  const [selectedTrain, setSelectedTrain] = useState(null);
 
   // Dummy train data
   const dummyTrains = [
@@ -17,6 +19,7 @@ const ShowTrains = () => {
       departure: '08:00 AM',
       arrival: '12:00 PM',
       seatsAvailable: 50,
+      fare: 120
     },
     {
       id: 2,
@@ -26,6 +29,7 @@ const ShowTrains = () => {
       departure: '09:00 AM',
       arrival: '01:00 PM',
       seatsAvailable: 30,
+      fare: 150
     },
     {
       id: 3,
@@ -35,38 +39,53 @@ const ShowTrains = () => {
       departure: '10:00 AM',
       arrival: '02:00 PM',
       seatsAvailable: 100,
+      fare: 80
     },
     {
-        id: 4,
-        name: 'Sealdah Habra Local 304',
-        start: 'Sealdah',
-        destination: 'Habra',
-        departure: '4:00 PM',
-        arrival: '6:15 PM',
-        seatsAvailable: 100,
-      },
-      
+      id: 4,
+      name: 'Sealdah Habra Local 304',
+      start: 'Sealdah',
+      destination: 'Habra',
+      departure: '4:00 PM',
+      arrival: '6:15 PM',
+      seatsAvailable: 100,
+      fare: 90
+    },
   ];
 
-  // Handle form submission
   const handleSearch = (e) => {
     e.preventDefault();
-
-    // Filter trains based on user input
     const filteredTrains = dummyTrains.filter(
       (train) =>
         train.start.toLowerCase() === startStation.toLowerCase() &&
         train.destination.toLowerCase() === destinationStation.toLowerCase()
     );
-
-    // Update the trains state with filtered results
     setTrains(filteredTrains);
+    setSelectedTrain(null);
+  };
+
+  const handleBookNow = (train) => {
+    if (!user) {
+      alert('Please login to book tickets');
+      return;
+    }
+    setSelectedTrain(train);
+  };
+
+  const handleConfirmBooking = () => {
+    alert(`Booking confirmed for ${selectedTrain.name} by ${user.username}`);
+    // In a real app, you would send this to your backend
+    setSelectedTrain(null);
+    setTrains([]);
   };
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center mb-4" style={{fontWeight:'bold',color:'#0836B1' }}>Search Trains</h2>
+      <h2 className="text-center mb-4" style={{fontWeight:'bold',color:'#0836B1' }}>
+        Search Trains
+      </h2>
       <span className="train-emoji">🚂</span>
+      
       <form onSubmit={handleSearch} className="mb-4">
         <div className="row">
           <div className="col-md-4">
@@ -116,7 +135,12 @@ const ShowTrains = () => {
         </div>
       </form>
 
-      {/* Display Trains */}
+      {user && (
+        <div className="alert alert-info mb-4">
+          Logged in as: <strong>{user.username}</strong>
+        </div>
+      )}
+
       {trains.length > 0 ? (
         <div className="mt-4">
           <h3 className="mb-3">Available Trains</h3>
@@ -124,11 +148,13 @@ const ShowTrains = () => {
             <thead>
               <tr>
                 <th>Train Name</th>
-                <th>Start Station</th>
-                <th>Destination Station</th>
+                <th>Start</th>
+                <th>Destination</th>
                 <th>Departure</th>
                 <th>Arrival</th>
-                <th>Seats Available</th>
+                <th>Seats</th>
+                <th>Fare (₹)</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -140,6 +166,15 @@ const ShowTrains = () => {
                   <td>{train.departure}</td>
                   <td>{train.arrival}</td>
                   <td>{train.seatsAvailable}</td>
+                  <td>{train.fare}</td>
+                  <td>
+                    <button 
+                      className="btn btn-primary btn-sm"
+                      onClick={() => handleBookNow(train)}
+                    >
+                      Book Now
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -147,6 +182,48 @@ const ShowTrains = () => {
         </div>
       ) : (
         <p className="text-center">No trains found. Please adjust your search criteria.</p>
+      )}
+
+      {/* Booking Modal */}
+      {selectedTrain && (
+        <div className="modal" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirm Booking</h5>
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  onClick={() => setSelectedTrain(null)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>Train: <strong>{selectedTrain.name}</strong></p>
+                <p>From: {selectedTrain.start} to {selectedTrain.destination}</p>
+                <p>Departure: {selectedTrain.departure}</p>
+                <p>Arrival: {selectedTrain.arrival}</p>
+                <p>Fare: ₹{selectedTrain.fare}</p>
+                <p>Passenger: {user.username}</p>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => setSelectedTrain(null)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-primary" 
+                  onClick={handleConfirmBooking}
+                >
+                  Confirm Booking
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
