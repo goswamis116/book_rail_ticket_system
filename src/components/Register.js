@@ -1,25 +1,32 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 import railImage from '../assets/images/homeImage.jpeg';
 import googleLogo from '../assets/images/GoogleLogo.jpg';
+import { useAuth } from '../context/AuthContext';
 
-const Home = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const { login } = useAuth();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError('');
-    
-    if (!login(username, password)) {
-      setError('Invalid credentials');
-    }
-  };
+const Register = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [email, setEmail] = useState('');
+    const [error, setError] = useState('');
+    const { register } = useAuth();
+  
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      setError('');
+  
+      if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        return;
+      }
+  
+      if (!register(username, password, email)) {
+        setError('Username already taken');
+      }
+    };
 
   const handleGoogleLogin = () => {
-    console.log('Login with Google clicked');
+    console.log('Register with Google clicked');
   };
 
   return (
@@ -34,13 +41,25 @@ const Home = () => {
           />
         </div>
 
+        {/* Right Side - Registration Form */}
         <div className="col-md-6 d-flex align-items-center justify-content-center">
-          <div className="card p-4 shadow-3d">
-            <h2 className="text-center mb-4">Login to <span style={{fontWeight:'bold',color:'#0836B1' }}>Book-rail</span></h2>
+          <div className="card p-4 shadow-3d" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+            <h2 className="text-center mb-4">Register for <span style={{ fontWeight: 'bold', color: '#0836B1' }}>Book-rail</span></h2>
             
             {error && <div className="alert alert-danger">{error}</div>}
             
             <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label">Email:</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
               <div className="mb-3">
                 <label htmlFor="username" className="form-label">Username:</label>
                 <input
@@ -63,15 +82,26 @@ const Home = () => {
                   required
                 />
               </div>
+              <div className="mb-3">
+                <label htmlFor="confirmPassword" className="form-label">Confirm Password:</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
               <button type="submit" className="btn btn-dark w-100 mb-3">
-                Login
+                Register
               </button>
             </form>
 
             <div className="text-center mb-3">
               <p className="mb-0">
-                Don't have an account?{' '}
-                <a href="/register" className="text-decoration-none">Register</a>
+                Already have an account?{' '}
+                <a href="/" className="text-decoration-none">Login</a>
               </p>
             </div>
 
@@ -82,7 +112,7 @@ const Home = () => {
             </div>
 
             <button
-              className="btn btn-outline-dark w-100 d-flex align-items-center justify-content-center"
+              className="btn btn-outline-dark w-100 d-flex align-items-center justify-content-center mb-3"
               onClick={handleGoogleLogin}
             >
               <img
@@ -90,7 +120,7 @@ const Home = () => {
                 alt="Google Logo"
                 style={{ width: '20px', marginRight: '10px' }}
               />
-              Login with Google
+              Register with Google
             </button>
           </div>
         </div>
@@ -99,4 +129,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Register;
