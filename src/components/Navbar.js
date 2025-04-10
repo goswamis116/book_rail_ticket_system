@@ -1,20 +1,22 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user, logout,showToast  } = useAuth();
+  const { user, logout, showToast, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
+    navigate('/');
   };
   
   const handleShowTrainsClick = (e) => {
     if (!user) {
       e.preventDefault();
-      showToast('You should login first', 'error');
+      showToast('Please login to view trains', 'error');
+      navigate('/', { state: { from: '/show-trains' } }); // Redirect to home with state
     }
-    // If user is logged in, normal navigation will proceed
   };
 
   return (
@@ -29,6 +31,7 @@ const Navbar = () => {
           aria-controls="navbarNav"
           aria-expanded="false"
           aria-label="Toggle navigation"
+          disabled={isLoading}
         >
           <span className="navbar-toggler-icon"></span>
         </button>
@@ -40,10 +43,14 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link  className="nav-link" 
-               to="/show-trains"
-               onClick={handleShowTrainsClick}>
+              <Link 
+                className="nav-link" 
+                to="/show-trains"
+                onClick={handleShowTrainsClick}
+                aria-disabled={!user}
+              >
                 Show Trains
+                {isLoading && <span className="ms-2 spinner-border spinner-border-sm" role="status"></span>}
               </Link>
             </li>
             <li className="nav-item">
@@ -57,12 +64,12 @@ const Navbar = () => {
               </Link>
             </li>
             
-            {/* Conditional rendering based on authentication */}
             {user ? (
               <>
                 <li className="nav-item">
                   <span className="nav-link" style={{ color: 'white' }}>
-                    Welcome, {user.username}
+                    <i className="bi bi-person-circle me-2"></i>
+                    {user.username}
                   </span>
                 </li>
                 <li className="nav-item">
@@ -70,8 +77,9 @@ const Navbar = () => {
                     className="nav-link btn btn-link" 
                     onClick={handleLogout}
                     style={{ color: 'white', textDecoration: 'none' }}
+                    disabled={isLoading}
                   >
-                    Logout
+                    {isLoading ? 'Logging out...' : 'Logout'}
                   </button>
                 </li>
               </>

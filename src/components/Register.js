@@ -1,31 +1,59 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import railImage from '../assets/images/homeImage.jpeg';
 import googleLogo from '../assets/images/GoogleLogo.jpg';
-import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [email, setEmail] = useState('');
-    const [error, setError] = useState('');
-    const { register } = useAuth();
-  
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      setError('');
-  
-      if (password !== confirmPassword) {
-        setError('Passwords do not match');
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    username: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const { register, showToast } = useAuth();
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // Client-side validation
+      if (formData.password !== formData.confirmPassword) {
+        showToast('Passwords do not match', 'error');
         return;
       }
-  
-      if (!register(username, password, email)) {
-        setError('Username already taken');
+
+      const success = await register(
+        formData.username,
+        formData.password,
+        formData.email,
+        formData.firstName,
+        formData.lastName
+      );
+
+      if (success) {
+        showToast('Registration successful !! Now login here', 'success');
+        navigate('/');
       }
-    };
+    } catch (error) {
+      showToast(error.message || 'Registration failed', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleGoogleLogin = () => {
+    showToast('Google registration is currently unavailable', 'info');
     console.log('Register with Google clicked');
   };
 
@@ -46,8 +74,6 @@ const Register = () => {
           <div className="card p-4 shadow-3d" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
             <h2 className="text-center mb-4">Register for <span style={{ fontWeight: 'bold', color: '#0836B1' }}>Book-rail</span></h2>
             
-            {error && <div className="alert alert-danger">{error}</div>}
-            
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">Email:</label>
@@ -55,10 +81,35 @@ const Register = () => {
                   type="email"
                   className="form-control"
                   id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={handleChange}
                   required
+                  disabled={isLoading}
                 />
+              </div>
+              <div className="mb-3">
+              <label htmlFor="firstName" className="form-label">First Name:</label>
+              <input
+                type="text"
+                className="form-control"
+                id="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+                disabled={isLoading}
+              />
+              </div>
+              <div className="mb-3">
+              <label htmlFor="lastName" className="form-label">Last Name:</label>
+              <input
+                type="text"
+                className="form-control"
+                id="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+                disabled={isLoading}
+              />
               </div>
               <div className="mb-3">
                 <label htmlFor="username" className="form-label">Username:</label>
@@ -66,9 +117,10 @@ const Register = () => {
                   type="text"
                   className="form-control"
                   id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={formData.username}
+                  onChange={handleChange}
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div className="mb-3">
@@ -77,9 +129,10 @@ const Register = () => {
                   type="password"
                   className="form-control"
                   id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handleChange}
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div className="mb-3">
@@ -88,13 +141,23 @@ const Register = () => {
                   type="password"
                   className="form-control"
                   id="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
                   required
+                  disabled={isLoading}
                 />
               </div>
-              <button type="submit" className="btn btn-dark w-100 mb-3">
-                Register
+              <button 
+                type="submit" 
+                className="btn btn-dark w-100 mb-3"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Registering...
+                  </>
+                ) : 'Register'}
               </button>
             </form>
 
@@ -114,6 +177,7 @@ const Register = () => {
             <button
               className="btn btn-outline-dark w-100 d-flex align-items-center justify-content-center mb-3"
               onClick={handleGoogleLogin}
+              disabled={isLoading}
             >
               <img
                 src={googleLogo}

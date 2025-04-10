@@ -1,12 +1,17 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
-  const { user, showToast } = useAuth();
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) {
+    return <div className="text-center my-5">Loading...</div>;
+  }
 
   if (!user) {
-    showToast('You should login first', 'error');
-    return <Navigate to="/" replace />;
+    // Don't show toast here - we'll handle it in Home.js
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   return children;
