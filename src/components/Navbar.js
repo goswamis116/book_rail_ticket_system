@@ -1,3 +1,4 @@
+// Navbar.js
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -15,7 +16,7 @@ const Navbar = () => {
     if (!user) {
       e.preventDefault();
       showToast('Please login to view trains', 'error');
-      navigate('/', { state: { from: '/show-trains' } }); // Redirect to home with state
+      navigate('/', { state: { from: '/show-trains' } });
     }
   };
 
@@ -53,6 +54,16 @@ const Navbar = () => {
                 {isLoading && <span className="ms-2 spinner-border spinner-border-sm" role="status"></span>}
               </Link>
             </li>
+            
+            {/* Add Admin Portal link - only visible to admins */}
+            {user && user.role === 'admin' && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/admin-portal">
+                  Admin Portal
+                </Link>
+              </li>
+            )}
+            
             <li className="nav-item">
               <Link className="nav-link" to="/about">
                 About

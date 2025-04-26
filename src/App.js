@@ -7,7 +7,11 @@ import ShowTrains from './components/ShowTrains';
 import Register from './components/Register';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import Toast from './components/Toast'; // Add the Toast component
+import Toast from './components/Toast';
+import AdminPortal from './components/AdminPortal';
+import AddTrain from './components/admin/AddTrain';
+import ModifyTrain from './components/admin/ModifyTrain';
+import ModifyUser from './components/admin/ModifyUser';
 
 function App() {
   return (
@@ -15,7 +19,7 @@ function App() {
       <AuthProvider>
         <div className="App d-flex flex-column min-vh-100">
           <Navbar />
-          <Toast /> {/* Add Toast here - will render conditionally */}
+          <Toast />
           <main className="flex-grow-1">
             <Routes>
               <Route path="/" element={<Home />} />
@@ -28,6 +32,40 @@ function App() {
                 } 
               />
               <Route path="/register" element={<Register />} />
+              
+              {/* Admin Routes */}
+              <Route 
+                path="/admin-portal" 
+                element={
+                  <ProtectedRoute adminOnly={true}>
+                    <AdminPortal />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/add-train" 
+                element={
+                  <ProtectedRoute adminOnly={true}>
+                    <AddTrain />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/modify-train" 
+                element={
+                  <ProtectedRoute adminOnly={true}>
+                    <ModifyTrain />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/modify-user" 
+                element={
+                  <ProtectedRoute adminOnly={true}>
+                    <ModifyUser />
+                  </ProtectedRoute>
+                } 
+              />
             </Routes>
           </main>
           <Footer />
