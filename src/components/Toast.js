@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import styled, { keyframes } from 'styled-components';
 
@@ -62,6 +62,13 @@ const ToastMessage = styled.span`
 
 const Toast = () => {
   const { toast } = useAuth();
+
+  useEffect(() => {
+    if (toast.show) {
+      const audio = new Audio('/notification.mp3'); // path relative to public/
+      audio.play().catch(err => console.error('Failed to play sound:', err));
+    }
+  }, [toast.show]); // triggers when toast.show changes
 
   if (!toast.show) return null;
 
