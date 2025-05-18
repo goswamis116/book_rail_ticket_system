@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AddTrain = () => {
   const [trainData, setTrainData] = useState({
@@ -9,34 +11,36 @@ const AddTrain = () => {
     destination: '',
     departureTime: '',
     arrivalTime: '',
-    seatsAvailable: '',
-    fare: ''
+    seatsAvailable: 0,
+    fare: 0
   });
+  const [isLoading, setIsLoading] = useState(false);
   const { showToast } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setTrainData(prev => ({ ...prev, [name]: value }));
+    setTrainData(prev => ({
+      ...prev,
+      [name]: name === 'seatsAvailable' || name === 'fare' ? Number(value) : value
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    
     try {
-      // TODO: Implement API call to add train
+      const response = await axios.post('/api/admin/trains', trainData);
       showToast('Train added successfully!', 'success');
-      // Reset form
-      setTrainData({
-        trainNumber: '',
-        trainName: '',
-        source: '',
-        destination: '',
-        departureTime: '',
-        arrivalTime: '',
-        seatsAvailable: '',
-        fare: ''
-      });
+      navigate('/admin-portal');
     } catch (error) {
-      showToast('Failed to add train', 'error');
+      showToast(
+        error.response?.data?.message || 'Failed to add train', 
+        'error'
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -45,8 +49,9 @@ const AddTrain = () => {
       <h2>Add New Train</h2>
       <form onSubmit={handleSubmit}>
         <div className="row g-3">
+          {/* Train Number */}
           <div className="col-md-6">
-            <label className="form-label">Train Number</label>
+            <label className="form-label">Train Number*</label>
             <input
               type="text"
               className="form-control"
@@ -56,8 +61,10 @@ const AddTrain = () => {
               required
             />
           </div>
+
+          {/* Train Name */}
           <div className="col-md-6">
-            <label className="form-label">Train Name</label>
+            <label className="form-label">Train Name*</label>
             <input
               type="text"
               className="form-control"
@@ -67,8 +74,10 @@ const AddTrain = () => {
               required
             />
           </div>
+
+          {/* Source Station */}
           <div className="col-md-6">
-            <label className="form-label">Source Station</label>
+            <label className="form-label">Source Station*</label>
             <input
               type="text"
               className="form-control"
@@ -78,8 +87,10 @@ const AddTrain = () => {
               required
             />
           </div>
+
+          {/* Destination Station */}
           <div className="col-md-6">
-            <label className="form-label">Destination Station</label>
+            <label className="form-label">Destination Station*</label>
             <input
               type="text"
               className="form-control"
@@ -89,8 +100,10 @@ const AddTrain = () => {
               required
             />
           </div>
+
+          {/* Departure Time */}
           <div className="col-md-6">
-            <label className="form-label">Departure Time</label>
+            <label className="form-label">Departure Time*</label>
             <input
               type="time"
               className="form-control"
@@ -100,8 +113,10 @@ const AddTrain = () => {
               required
             />
           </div>
+
+          {/* Arrival Time */}
           <div className="col-md-6">
-            <label className="form-label">Arrival Time</label>
+            <label className="form-label">Arrival Time*</label>
             <input
               type="time"
               className="form-control"
@@ -111,31 +126,55 @@ const AddTrain = () => {
               required
             />
           </div>
+
+          {/* Seats Available */}
           <div className="col-md-6">
-            <label className="form-label">Seats Available</label>
+            <label className="form-label">Seats Available*</label>
             <input
               type="number"
               className="form-control"
               name="seatsAvailable"
               value={trainData.seatsAvailable}
               onChange={handleChange}
+              min="0"
               required
             />
           </div>
+
+          {/* Fare */}
           <div className="col-md-6">
-            <label className="form-label">Fare (₹)</label>
+            <label className="form-label">Fare (₹)*</label>
             <input
               type="number"
               className="form-control"
               name="fare"
               value={trainData.fare}
               onChange={handleChange}
+              min="0"
+              step="0.01"
               required
             />
           </div>
+
           <div className="col-12">
-            <button type="submit" className="btn btn-primary">
-              Add Train
+            <button 
+              type="submit" 
+              className="btn btn-primary me-2"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                  Adding...
+                </>
+              ) : 'Add Train'}
+            </button>
+            <button 
+              type="button" 
+              className="btn btn-secondary"
+              onClick={() => navigate('/admin-portal')}
+            >
+              Cancel
             </button>
           </div>
         </div>

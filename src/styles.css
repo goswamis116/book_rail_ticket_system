@@ -37,3 +37,21 @@
     left: 200px;
     animation: trainAnimation 5s linear infinite;
   }
+
+  .admin-card {
+    background-color: #ffffff; /* default white */
+    border-radius: 10px;
+    transition: background-color 0.3s, transform 0.3s;
+  }
+  
+  .admin-card:hover {
+    background-color: #0067A5; /* hover color */
+    transform: scale(1.05);
+  }
+  
+  .admin-card:hover .card-title,
+  .admin-card:hover img {
+    color: #ffffff;
+    filter: brightness(0) invert(1); /* Invert logo color if you want white look */
+  }
+  

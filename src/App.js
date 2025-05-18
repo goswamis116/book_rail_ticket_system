@@ -12,6 +12,7 @@ import AdminPortal from './components/AdminPortal';
 import AddTrain from './components/admin/AddTrain';
 import ModifyTrain from './components/admin/ModifyTrain';
 import ModifyUser from './components/admin/ModifyUser';
+import ViewTrains from './components/admin/ViewTrains';
 
 function App() {
   return (
@@ -63,6 +64,14 @@ function App() {
                 element={
                   <ProtectedRoute adminOnly={true}>
                     <ModifyUser />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/view-trains" 
+                element={
+                  <ProtectedRoute adminOnly={true}>
+                    <ViewTrains />
                   </ProtectedRoute>
                 } 
               />
